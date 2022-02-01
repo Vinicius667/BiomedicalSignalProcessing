@@ -1,5 +1,5 @@
 close all
-clear globals
+clear variables
 clc
 num_bits = [4,8,12,16];
 

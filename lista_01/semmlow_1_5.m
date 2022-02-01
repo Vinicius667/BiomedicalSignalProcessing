@@ -1,5 +1,5 @@
 close all
-clear globals
+clear variables
 clc
 
 intervals = [0.05,0.01,0.001];
