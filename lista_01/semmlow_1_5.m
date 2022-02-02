@@ -14,7 +14,7 @@ for idx = 1:num_plots
 	plot(t,x);
 	hold on
 	plot(t,x,'.k');
-	xlabel('Time (s)'); 
+	xlabel('Time (sec)'); 
 	ylabel(sprintf('x[k] - Ts = %s',string(Ts)));
 	legend('Line graph','Scatter plot','Location','best')
 end
