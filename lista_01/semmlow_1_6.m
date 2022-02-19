@@ -1,21 +1,22 @@
 close all
 clear variables
 clc
-num_bits = [4,8,12,16];
+f = 4; %Frequency
+N = 1000; %Number of points
+Ts = 0.002; %Sample Time
+bits = [4 8 12 16]; %Number of bits ADC
+t = (0:N-1) * Ts; %Vector of time (Starts at 0s, ends at 1s)
+signal_out = zeros(4,N); %Initializing a matrix that contains the output signals from ADC
+error_signal = zeros(4,N); %Initializing a matrix that contains the error signals
+q = zeros(1,4); %Initializing a vector that contains the quantization levels
+max_min_errors = zeros(4,2); %Initalizing a matrix that contains the max and min values of the error signal
 
-TT = 1;
-f = 4;
-Ts = 0.002;
-N = 1000;
-t = (0:N-1)*Ts;
-signal_in = sin(2*pi*f.*t); 
-disp('Quantization Noise')
-fprintf('|%s|%s|%s|\n',pad('Bits',15,'both'),pad('Emperical',15,'both'),pad('Theoretical',15,'both'));
-for bits = num_bits
-	signal_out = quantization(signal_in,bits);
-	noise_signal = signal_out - signal_in; 
-	q_noise = var(noise_signal); 
-	q = 1/(2^bits - 1); 
-	theoretical = (q^2)/12; 
-	fprintf('|%s|%s|%s|\n',pad(string(bits),15,'both'),pad(string(q_noise),15,'both'),pad(string(theoretical),15,'both')); 
+original_signal = sin(2*pi*f*t); %Sine wave
+
+for ind=1:4
+   signal_out(ind,:) = quantization(original_signal, bits(ind)); %Quantized signal
+   error_signal(ind,:) = original_signal - signal_out(ind,:); %Calculates the error 
+   q(ind) = 1/(2^bits(ind) - 1); %Calculates the quantization levels
+   max_min_errors(ind,:) = [max(error_signal(ind,:)) min(error_signal(ind,:))]; %Calculates the max and min of the error signal 
+   fprintf('%2d bits: Erro Máximo = %.7f | Erro Mínimo = %.7f | q = %.7f\n', bits(ind), max_min_errors(ind,1), max_min_errors(ind,2), q(ind)); %Displays the obatined results
 end

@@ -1,65 +1,23 @@
-
 close all
 clear variables
 clc
+f = 4; %Frequency
+N = 1000; %Number of points
+Ts = 0.002; %Sample time
+bits = [4 8 10 12]; %Bits ADC
+t = (0:N-1) * Ts; %Time vector (Ts as sample time, N number of points)
+signal_in = sin(2*pi*f*t); %Input of ADC
+signal_out = zeros(4,N); %Initializing a matrix that contains the output signals from ADC
+noise_signal = zeros(4,N); %Initializing a matrix that contains the noise signal
+q = zeros(1,4); %Initializing a matrix that contains the quantization levels
+theoretical = zeros(1,4); %Theoretical error
+q_noise = zeros(1,4); %Experimental error (Var)
 
-% Hard-coded values
-%--------------------------------------------------------
-num_freqs = 1000;
-min_freq = 2;
-max_freq = 40;
-f = 10;
-N = 1000;
-Ts = 0.001;
-q_bits = [4,8,10,12]; % Quantization levels
-%--------------------------------------------------------
-
-% Variables 
-%--------------------------------------------------------
-t = (0:N-1)*Ts; % Time array
-freqs = linspace(min_freq,max_freq,num_freqs); % Frequency array
-As = zeros(1,num_freqs); % Amplitude array of the non quantized signal
-
-As_q = zeros(length(q_bits),num_freqs); % Amplitude array of the quantized signals
-%--------------------------------------------------------
-
-
-for freq_idx = 1:num_freqs
-	f = freqs(freq_idx); 
-	input = sin(2*pi*f*t);
-	output = analog_filter2(input);
-	As(1,freq_idx) = max(output);
+for ind=1:4
+   signal_out(ind,:) = quantization(signal_in, bits(ind)); %Calculates the quantized signal
+   noise_signal(ind,:) = signal_out(ind,:) - signal_in; %Calculates the error
+   q(ind) = 1/(2^bits(ind) - 1); %calculates the quantization levels
+   q_noise(ind) = var(noise_signal(ind,:)); %Calculates the experimental error
+   theoretical(ind) = (q(ind)^2)/12; %Calculates the theoretical error
+   disp(sprintf('%2d bits: Erro Teorico = %.5e | Erro Experimental = %.5e', bits(ind), theoretical(ind), q_noise(ind)));
 end
-
-legends = ["Sinal original"];
-for bit_idx = 1:length(q_bits)
-	bit = q_bits(bit_idx);
-	As_q(bit_idx,:) = quantization(As,bit);	
-	legends(end + 1) = sprintf('Quantização n = %d bits',bit);
-end
-
-A_db = 20*log10(As);
-A_q_db = 20*log10(As_q);
-
-
-plot(freqs,A_db);
-hold on
-plot(freqs,A_q_db')
-grid on
-ylabel('Amplitude (dB)')
-xlabel('Frequency (Hz)');
-legend(legends)
-
-[dummy_var, index_3db] = min(abs(A_db-(-3)));
-text(freqs(index_3db),A_db(index_3db),strcat(' \leftarrow',sprintf('(%0.1f Hz,%0.1f dB)',freqs(index_3db),A_db(index_3db))),'FontSize',12);
-
-
-fig = figure();
-Q_noise = 20*log10(abs(As_q-As));
-plot(freqs,Q_noise');
-legends(1) = [];
-grid on
-ylabel('Amplitude (dB)')
-xlabel('Frequency (Hz)');
-legend(legends)
-
