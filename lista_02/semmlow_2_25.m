@@ -6,7 +6,7 @@ A = 1; % Signal amplitude
 f = 1; % Frequency of both signals 
 cw = A*cos(2*pi*f*t); % Sine wave
 sqw = A*square(2*pi*f*t); % Cossine wave
-rxy_p = sum((cw-mean(cw)).*(sqw-mean(sqw))) / ((N-1)*sqrt(var(cw)*var(sqw))); % Pearson correlation
+rxy = sum(cw.*sqw)/N; % Normalized correlation
 % ------------- Graph plotting --------------------------
 hold on
 plot(t,sqw,'DisplayName','Square wave')
@@ -22,5 +22,5 @@ saveas(gcf,sprintf('%s.png',mfilename))
 filename = sprintf('%s.txt',mfilename);
 if exist(filename, 'file') ; delete(filename); end
 diary(filename)
-rxy_p
+rxy
 diary off
