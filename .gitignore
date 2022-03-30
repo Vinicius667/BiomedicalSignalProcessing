@@ -1,5 +1,3 @@
-OtherFiles/
-*.png
-*.pdf
-*.fig
+4 - OtherFiles/
+1 - Solved Problems/**/*.png
 *.asv
